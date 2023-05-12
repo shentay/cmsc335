@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<script src="/javascript/navbar.js"></script>
+	<link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/w3.css"/>
+	<title>Soccer Scores - Play Log</title>
+</head>
+
+<body>
+	<header>
+		<div class="navbar" id="navbar-placeholder"></div>
+	</header>
+
+	<div class="body">
+        <h1>
+            Playlog
+        </h1>
+		<div id="history">
+            <%- results %>
+			<div id="fulltime">
+				<button onclick="window.location.href='/';">Return Home</button>
+			</div>
+        </div>
+	</div>
+	
+</body>
+
+</html>

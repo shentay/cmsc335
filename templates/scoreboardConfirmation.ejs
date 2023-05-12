@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+    <script src="/javascript/navbar.js"></script>
+    <script src="/javascript/scoreboard.js"></script>
+	<link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/w3.css"/>
+	<title>Soccer Scores - Full Time</title>
+</head>
+
+<body>
+	<header>
+		<div class="navbar" id="navbar-placeholder"></div>
+	</header>
+
+	<div class="body">
+        <img src="/images/logo.jpg" id="logo">
+        <br>
+        <div id="final_scoreline">
+            <h2>Full Time</h2>
+            (<%- home_manager %>) <%- home_team %> <%- final_score %> <%- away_team %> (<%- away_manager %>)
+        </div>
+        <br>
+        <div id="fulltime">
+            <button onclick="window.location.href='/';">Return Home</button>
+        </div>
+	</div>
+	
+</body>
+
+</html>

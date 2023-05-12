@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<script src="/javascript/navbar.js"></script>
+	<link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/w3.css"/>
+	<title>Soccer Scores - New Game</title>
+</head>
+
+<body>
+	<header>
+		<div class="navbar" id="navbar-placeholder"></div>
+	</header>
+
+	<div class="body">
+        <h1>
+            New Game - Setup
+        </h1>
+		<form action=<%- localhost %> method="post">
+            <fieldset>
+                <legend>
+                    <strong>Home Team</strong>
+                </legend>
+                <label>Manager Name: <input type="text" name="home_manager" required></label> <br>
+			    <label>Team Name: <input type="text" name="home_team" required></label>
+            </fieldset>
+
+            <fieldset>
+                <legend>
+                    <strong>Away Team</strong>
+                </legend>
+                <label>Manager Name: <input type="text" name="away_manager" required></label> <br>
+			    <label>Team Name: <input type="text" name="away_team" required></label>
+            </fieldset>
+
+            <br>
+            <input type="reset" />
+            <input type="submit" value="Create Game"/>
+        </form>
+	</div>
+	
+</body>
+
+</html>

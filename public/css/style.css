@@ -1,0 +1,171 @@
+html {
+    background-color: green;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* navbar */
+
+.navbar {
+    overflow: hidden;
+    background-color: black;
+    color: red;
+}
+
+.navbar a {
+    float: left;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* The dropdown container */
+.dropdown {
+    float: left;
+    overflow: hidden;
+}
+
+/* Dropdown button */
+.dropdown .dropbtn {
+    font-size: 16px;
+    border: none;
+    outline: none;
+    color: white;
+    padding: 14px 16px;
+    background-color: inherit;
+    font-family: inherit; /* Important for vertical align on mobile phones */
+    margin: 0; /* Important for vertical align on mobile phones */
+}
+
+/* Add background color to navbar links on hover */
+.navbar a:hover, .dropdown:hover .dropbtn {
+    background-color: red;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: black;
+    color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    float: none;
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+/* Add background color to dropdown links on hover */
+.dropdown-content a:hover {
+    background-color: violet;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* body */
+.body {
+    padding: 12px;
+}
+
+/* search results */
+.search-results {
+    border: 1;
+}
+
+/* scoreboard */
+#logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    padding-bottom: 10pt;
+}
+
+.column {
+    float: left;
+    width: 50%;
+}
+
+.column h1 {
+    font-size: 50pt;
+}
+
+#home {
+    background-color: white;
+    color: red;
+    text-align: right;
+    padding-right: 10pt;
+    padding-bottom: 10pt;
+}
+
+#away {
+    background-color: black;
+    color: red;
+    text-align: left;
+    padding-left: 10pt;
+    padding-bottom: 10pt;
+}
+
+.scorebtn {
+    border-radius: 50%;
+    width: 20pt;
+    background-color: red;
+}
+
+.scorebtn:hover {
+    background-color: lightblue;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#fulltime {
+    text-align: center;
+}
+
+#final_scoreline {
+    font-size: 25pt;
+    background-color: white;
+    color: red;
+    text-align: center;
+    padding-bottom: 10pt;
+}
+
+/* search results */
+.search-results table, th, td {
+    text-align: center;
+    border: 1pt solid white;
+    padding: 5pt;
+}
+
+/* table page */
+.title {
+    font-size: 50pt;
+    padding-bottom: 20pt;
+}
+
+/* footer */
+.footer {
+    text-align: center;
+}
+
+.league-logo {
+    max-height: 100pt;
+}

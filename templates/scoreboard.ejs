@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+    <script src="/javascript/navbar.js"></script>
+    <script src="/javascript/scoreboard.js"></script>
+	<link rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/w3.css"/>
+	<title>Soccer Scores - In Game</title>
+</head>
+
+<body>
+	<header>
+		<div class="navbar" id="navbar-placeholder"></div>
+	</header>
+
+	<div class="body">
+        <img src="/images/logo.jpg" id="logo">
+        <div class="row">
+            <div class="column" id="home">
+                <div class="column">
+                    <h1 id="home_score">0</h1>
+                </div>
+                <div class="column">
+                    <h3 id="home_team"><%- home_team %></h3>
+                    <h4 id="home_manager"><%- home_manager %></h4>
+                    
+                    <button class="scorebtn" onclick="decreaseScore('home')">-</button>
+                    <button class="scorebtn" onclick="increaseScore('home')">+</button>
+                </div>
+            </div>
+            <div class="column" id="away">
+                <div class="column">
+                    <h3 id="away_team"><%- away_team %></h3>
+                    <h4 id="away_manager"><%- away_manager %></h4>
+                    <button class="scorebtn" onclick="decreaseScore('away')">-</button>
+                    <button class="scorebtn" onclick="increaseScore('away')">+</button>
+                </div>
+                <div class="column">
+                    <h1 id="away_score">0</h1>
+                </div>
+            </div>
+        </div>
+        <br>
+        <form id="fulltime" action=<%- localhost %> method="post">
+            <input name="home_team" id="home_team_form" hidden>
+            <input name="home_manager" id="home_manager_form" hidden>
+            <input name="away_team" id="away_team_form" hidden>
+            <input name="away_manager" id="away_manager_form"hidden>
+            <input name="final_score" id="final_score" hidden>
+            <button name="submit" onclick="return validate(this)">Full Time</button>
+        </form>
+	</div>
+	
+</body>
+
+</html>

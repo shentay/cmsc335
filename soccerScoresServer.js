@@ -1,15 +1,20 @@
+'use strict'
+
 const path = require("path");
 const bodyParser = require("body-parser");
 const express = require("express");
-const app = express();
+const http = require('http');
 let portNumber = 3000;  
 require("dotenv").config({ path: path.resolve(__dirname, 'credentials/.env') }) 
+// mongodb
 const userName = process.env.MONGO_DB_USERNAME;
 const password = process.env.MONGO_DB_PASSWORD;
 const databaseAndCollection = {db: process.env.MONGO_DB_NAME, collection: process.env.MONGO_COLLECTION};
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${userName}:${password}@cluster0.tsbctmh.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+const app = express();
 
 // checking number of arguments is valid
 process.stdin.setEncoding("utf8");
@@ -224,21 +229,25 @@ app.get("/all", async (request, response) => {
     response.render("all", variables);
 });
 
+
+
 // command line interpreter
-app.listen(portNumber); 
-console.log(`Web server started and running at http://localhost:${portNumber}`);
-process.stdout.write("Stop to shutdown the server: ");
-process.stdin.on('readable', () => {
-	let dataInput = process.stdin.read();
-	while (dataInput !== null) {
-		let command = dataInput.trim();
-		if (command === "stop") {
-			console.log("Shutting down the server");
-            process.exit(0);
-        } else {
-			console.log(`Invalid command: ${command}`);
-		}
-        process.stdout.write("Stop to shutdown the server: ");
-	    dataInput = process.stdin.read();
-    }
-});
+const server = http.createServer(app);
+server.listen(portNumber, () => {
+    console.log(`Web server started and running at http://localhost:${portNumber}`);
+    process.stdout.write("Stop to shutdown the server: ");
+    process.stdin.on('readable', () => {
+        let dataInput = process.stdin.read();
+        while (dataInput !== null) {
+            let command = dataInput.trim();
+            if (command === "stop") {
+                console.log("Shutting down the server");
+                process.exit(0);
+            } else {
+                console.log(`Invalid command: ${command}`);
+            }
+            process.stdout.write("Stop to shutdown the server: ");
+            dataInput = process.stdin.read();
+        }
+    });
+}); 

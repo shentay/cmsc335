@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "node soccerScoresServer.js"
+    "start": "node soccerScoresServer.js 3000"
   },
   "dependencies": {
     "dotenv": "^16.0.0",

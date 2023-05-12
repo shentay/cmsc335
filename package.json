@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node soccerScoresServer.js"
+  },
   "dependencies": {
     "dotenv": "^16.0.0",
     "ejs": "^3.1.9",

@@ -65,7 +65,6 @@ app.get("/", async (request, response) => {
     const variables = {
         message: ""
     };
-    console.log(request.cookies);
     response.render("index", variables);
 });
 

@@ -60,7 +60,7 @@ app.use(bodyParser.urlencoded({extended:false}));
 
 // authentication side
 // getting the index page
-app.get("/", (request, response) => {
+app.get("/", async (request, response) => {
     const variables = {
         localhost: `/register`,
         message: ""
@@ -69,7 +69,7 @@ app.get("/", (request, response) => {
 });
 
 // adding user to the firebase
-app.post("/register", (request, response) => {
+app.post("/register", async (request, response) => {
     let {email, password} = request.body;
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
@@ -99,7 +99,7 @@ app.post("/register", (request, response) => {
 });
 
 // getting the login page
-app.get("/login", (request, response) => {
+app.get("/login", async (request, response) => {
     const variables = {
         localhost: `/login`,
         message: ""
@@ -108,7 +108,7 @@ app.get("/login", (request, response) => {
 });
 
 // logging in with user and checking if user exists
-app.post("/login", (request, response) => {
+app.post("/login", async (request, response) => {
     let {email, password} = request.body;
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
@@ -136,7 +136,7 @@ app.post("/login", (request, response) => {
 });
 
 // logging out the user
-app.get("/logout", (request, response) => {
+app.get("/logout", async (request, response) => {
     signOut(auth)
     .then(() => {
         const variables = {
@@ -156,11 +156,15 @@ app.get("/logout", (request, response) => {
 });
 
 // getting the home page
-app.get("/home", (request, response) => {
+app.get("/home", async (request, response) => {
     if (user) {
         response.render("home");
     } else {
-        response.render("index", {message: "Please Create An Account"});
+        const variables = {
+            localhost: `/register`,
+            message: "Please Create An Account"
+        };
+        response.render("index", variables);
     }
 });
 
@@ -267,19 +271,23 @@ app.get("/ligueone", async (request, response) => {
 
 // UND1C! side
 // getting the newgame page
-app.get("/newgame", (request, response) => {
+app.get("/newgame", async (request, response) => {
     if (user) {
         const variables = {
             localhost: `/newgame`
         };
         response.render("newgame", variables);
     } else {
-        response.render("index", {message: "Please Create An Account"})
+        const variables = {
+            localhost: `/register`,
+            message: "Please Create An Account"
+        };
+        response.render("index", variables);
     }
 });
 
 // starting the game
-app.post("/newgame", (request, response) => {
+app.post("/newgame", async (request, response) => {
     let {home_manager, home_team, away_manager, away_team} = request.body;
     const variables = {
         home_manager: home_manager,
@@ -309,14 +317,18 @@ app.post("/scoreboard", async (request, response) => {
 });
 
 // getting the history page
-app.get("/history", (request, response) => {
+app.get("/history", async (request, response) => {
     if (user) {
         const variables = {
             localhost: `/history`
         };
         response.render("history", variables);
     } else {
-        response.render("index", {message: "Please Create An Account"});
+        const variables = {
+            localhost: `/register`,
+            message: "Please Create An Account"
+        };
+        response.render("index", variables);
     }
 });
 
@@ -365,7 +377,11 @@ app.get("/all", async (request, response) => {
         };
         response.render("all", variables);
     } else {
-        response.render("index", {message: "Please Create An Account"});
+        const variables = {
+            localhost: `/register`,
+            message: "Please Create An Account"
+        };
+        response.render("index", variables);
     }
 });
 

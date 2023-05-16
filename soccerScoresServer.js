@@ -1,6 +1,7 @@
 import path from 'path';
 import express from 'express';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import http from 'http';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -30,7 +31,6 @@ const firebaseConfig = {
 };
 const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
-let useruid = null;
 
 // checking number of arguments is valid
 let portNumber = 3000;
@@ -47,8 +47,17 @@ if (process.argv.length == 3) {
 const app = express();
 app.set("views", path.resolve(__dirname, "templates"));
 app.set("view engine", "ejs");
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({extended:false}));
+app.use(cookieParser());
+app.use(function (request, response, next) {
+    var cookie = request.cookies.useruid;
+    // if cookie does not exist set a new cookie
+    if (cookie === undefined) {
+      response.cookie('useruid', null, { httpOnly: true });
+    } 
+    next(); // <-- important!
+});
+app.use(express.static(path.join(__dirname, 'public')));
 
 // authentication side
 // getting the index page
@@ -56,6 +65,7 @@ app.get("/", async (request, response) => {
     const variables = {
         message: ""
     };
+    console.log(request.cookies);
     response.render("index", variables);
 });
 
@@ -65,7 +75,7 @@ app.post("/register", async (request, response) => {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         const user = userCredential.user;
-        useruid = user.uid;
+        response.cookie('useruid', user.uid, {httpOnly: true});
         response.render("home");
     })
     .catch((error) => {
@@ -103,7 +113,7 @@ app.post("/login", (request, response) => {
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         const user = userCredential.user;
-        useruid = user.uid;
+        response.cookie('useruid', user.uid, {httpOnly: true});
         response.render("home");
     })
     .catch((error) => {
@@ -162,7 +172,11 @@ app.post("/reset", (request, response) => {
 app.get("/logout", (request, response) => {
     signOut(auth)
     .then(() => {
-        response.get("login");
+        response.clearCookie();
+        const variables = {
+            message: ""
+        };
+        response.render("login", variables);
     })
     .catch((error) => {
         const errorMessage = error.message;
@@ -175,6 +189,7 @@ app.get("/logout", (request, response) => {
 
 // getting the home page
 app.get("/home", (request, response) => {
+    const useruid = request.cookies.useruid;
     if (useruid) {
         response.render("home");
     } else {
@@ -289,6 +304,7 @@ app.get("/ligueone", async (request, response) => {
 // UND1C! side
 // getting the newgame page
 app.get("/newgame", (request, response) => {
+    const useruid = request.cookies.useruid;
     if (useruid) {
         const variables = {
             localhost: `/newgame`
@@ -318,6 +334,7 @@ app.post("/newgame", (request, response) => {
 
 // sending the results to the server
 app.post("/scoreboard", async (request, response) => {
+    const useruid = request.cookies.useruid;
     let {home_team, home_manager, away_team, away_manager, final_score} = request.body;
     const game_results = {
         useruid: useruid,
@@ -335,6 +352,7 @@ app.post("/scoreboard", async (request, response) => {
 
 // getting the history page
 app.get("/history", (request, response) => {
+    const useruid = request.cookies.useruid;
     if (useruid) {
         const variables = {
             localhost: `/history`
@@ -351,6 +369,7 @@ app.get("/history", (request, response) => {
 
 // getting play history
 app.post("/history", async (request, response) => {
+    const useruid = request.cookies.useruid;
     let {manager} = request.body;
     // find all plays with manager
     await client.connect();
@@ -377,6 +396,7 @@ app.post("/history", async (request, response) => {
 
 // show all games played
 app.get("/all", async (request, response) => {
+    const useruid = request.cookies.useruid;
     if (useruid) {
         // get all games
         await client.connect();

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import {MongoClient, ServerApiVersion} from 'mongodb';
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 
 // mongodb authorization
 const __filename = fileURLToPath(import.meta.url);
@@ -33,6 +33,15 @@ const auth = getAuth(firebase);
 let user;
 let useruid;
 let authorized = false;
+onAuthStateChanged(auth, ((user) => {
+    if (user) {
+        useruid = user.uid;
+        authorized = true;
+    } else {
+        useruid = null;
+        authorized = false;
+    }
+}));
 
 // checking number of arguments is valid
 let portNumber = 3000;
@@ -63,8 +72,6 @@ app.post("/register", (request, response) => {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         user = userCredential.user;
-        useruid = user.uid;
-        authorized = true;
         response.render("home");
     })
     .catch((error) => {
@@ -96,8 +103,6 @@ app.post("/login", (request, response) => {
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         user = userCredential.user;
-        useruid = user.uid;
-        authorized = true;
         response.render("home", {message: ""});
     })
     .catch((error) => {
@@ -120,9 +125,6 @@ app.post("/login", (request, response) => {
 app.get("/logout", (request, response) => {
     signOut(auth)
     .then(() => {
-        user = null;
-        useruid = null;
-        authorized = false;
         response.render("login", {message: ""});
     })
     .catch((error) => {

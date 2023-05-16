@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import {MongoClient, ServerApiVersion} from 'mongodb';
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "firebase/auth";
 
 // mongodb authorization
 const __filename = fileURLToPath(import.meta.url);
@@ -30,15 +30,14 @@ const firebaseConfig = {
 };
 const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
-let user = null;
-let useruid = null;
-onAuthStateChanged(auth, ((user) => {
+let useruid;
+onAuthStateChanged(auth, function(user) {
     if (user) {
         useruid = user.uid;
     } else {
         useruid = null;
     }
-}));
+});
 
 // checking number of arguments is valid
 let portNumber = 3000;
@@ -62,7 +61,6 @@ app.use(bodyParser.urlencoded({extended:false}));
 // getting the index page
 app.get("/", async (request, response) => {
     const variables = {
-        localhost: `/register`,
         message: ""
     };
     response.render("index", variables);
@@ -73,7 +71,7 @@ app.post("/register", async (request, response) => {
     let {email, password} = request.body;
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-        user = userCredential.user;
+        const user = userCredential.user;
         response.render("home");
     })
     .catch((error) => {
@@ -90,7 +88,6 @@ app.post("/register", async (request, response) => {
                 break;
         }
         const variables = {
-            localhost: `/register`,
             message: errorMessage
         };
         response.render("index", variables);
@@ -101,18 +98,17 @@ app.post("/register", async (request, response) => {
 // getting the login page
 app.get("/login", async (request, response) => {
     const variables = {
-        localhost: `/login`,
         message: ""
     };
     response.render("login", variables);
 });
 
 // logging in with user and checking if user exists
-app.post("/login", async (request, response) => {
+app.post("/login", (request, response) => {
     let {email, password} = request.body;
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-        user = userCredential.user;
+        const user = userCredential.user;
         response.render("home");
     })
     .catch((error) => {
@@ -120,6 +116,7 @@ app.post("/login", async (request, response) => {
         switch (error.code) {
             case 'auth/user-not-found':
                 errorMessage = `Invalid email address!`
+                break;
             case 'auth/wrong-password':
                 errorMessage = `Invalid password!`;
                 break;
@@ -128,19 +125,49 @@ app.post("/login", async (request, response) => {
                 break;
         }
         const variables = {
-            localhost: `/login`,
             message: errorMessage
         };
         response.render("login", variables);
     });    
 });
 
+app.get("/reset", (request, response) => {
+    const variables = {
+        message: ""
+    };
+    response.render("reset", variables);
+});
+
+// reset password
+app.post("/reset", (request, response) => {
+    let {email} = request.body;
+    sendPasswordResetEmail(auth, email)
+    .then(() => {
+        // Password reset email sent!
+        response.render("resetConfirmation")
+    })
+    .catch((error) => {
+        let errorMessage;
+        switch (error.code) {
+            case 'auth/user-not-found':
+                errorMessage = `Invalid email address!`;
+                break;
+            default:
+                errorMessage = error.message;
+                break;
+        }
+        const variables = {
+            message: errorMessage
+        };
+        response.render("reset", variables);
+    });
+});
+
 // logging out the user
-app.get("/logout", async (request, response) => {
+app.get("/logout", (request, response) => {
     signOut(auth)
     .then(() => {
         const variables = {
-            localhost: `/login`,
             message: ""
         };
         response.render("login", variables);
@@ -148,7 +175,6 @@ app.get("/logout", async (request, response) => {
     .catch((error) => {
         const errorMessage = error.message;
         const variables = {
-            localhost: `/login`,
             message: errorMessage
         };
         response.render("login", variables);
@@ -156,12 +182,11 @@ app.get("/logout", async (request, response) => {
 });
 
 // getting the home page
-app.get("/home", async (request, response) => {
-    if (user) {
+app.get("/home", (request, response) => {
+    if (useruid) {
         response.render("home");
     } else {
         const variables = {
-            localhost: `/register`,
             message: "Please Create An Account"
         };
         response.render("index", variables);
@@ -271,8 +296,8 @@ app.get("/ligueone", async (request, response) => {
 
 // UND1C! side
 // getting the newgame page
-app.get("/newgame", async (request, response) => {
-    if (user) {
+app.get("/newgame", (request, response) => {
+    if (useruid) {
         const variables = {
             localhost: `/newgame`
         };
@@ -287,7 +312,7 @@ app.get("/newgame", async (request, response) => {
 });
 
 // starting the game
-app.post("/newgame", async (request, response) => {
+app.post("/newgame", (request, response) => {
     let {home_manager, home_team, away_manager, away_team} = request.body;
     const variables = {
         home_manager: home_manager,
@@ -317,8 +342,8 @@ app.post("/scoreboard", async (request, response) => {
 });
 
 // getting the history page
-app.get("/history", async (request, response) => {
-    if (user) {
+app.get("/history", (request, response) => {
+    if (useruid) {
         const variables = {
             localhost: `/history`
         };
@@ -361,7 +386,7 @@ app.post("/history", async (request, response) => {
 
 // show all games played
 app.get("/all", async (request, response) => {
-    if (user) {
+    if (useruid) {
         // get all games
         await client.connect();
         const cursor = client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).find({useruid: useruid});

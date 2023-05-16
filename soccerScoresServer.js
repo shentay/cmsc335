@@ -31,10 +31,6 @@ const firebaseConfig = {
 const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
 let useruid = null;
-// helper functions
-function setUid(uid) {
-    useruid = uid;
-}
 
 // checking number of arguments is valid
 let portNumber = 3000;
@@ -63,13 +59,13 @@ app.get("/", async (request, response) => {
     response.render("index", variables);
 });
 
-// adding user to the firebase
+// register user to firebase
 app.post("/register", async (request, response) => {
     let {email, password} = request.body;
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         const user = userCredential.user;
-        setUid(user.uid);
+        useruid = user.uid;
         response.render("home");
     })
     .catch((error) => {
@@ -86,7 +82,7 @@ app.post("/register", async (request, response) => {
                 break;
         }
         const variables = {
-            message: errorMessage
+            message: errorMessage,
         };
         response.render("index", variables);
     });
@@ -107,14 +103,14 @@ app.post("/login", (request, response) => {
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         const user = userCredential.user;
-        setUid(user.uid);
+        useruid = user.uid;
         response.render("home");
     })
     .catch((error) => {
         let errorMessage;
         switch (error.code) {
             case 'auth/user-not-found':
-                errorMessage = `Invalid email address!`
+                errorMessage = `Invalid email address!`;
                 break;
             case 'auth/wrong-password':
                 errorMessage = `Invalid password!`;
@@ -166,11 +162,7 @@ app.post("/reset", (request, response) => {
 app.get("/logout", (request, response) => {
     signOut(auth)
     .then(() => {
-        const variables = {
-            message: ""
-        };
-        setUid(null);
-        response.render("login", variables);
+        response.get("login");
     })
     .catch((error) => {
         const errorMessage = error.message;
@@ -319,7 +311,7 @@ app.post("/newgame", (request, response) => {
         home_team: home_team,
         away_manager: away_manager,
         away_team: away_team,
-        localhost: `/scoreboard`
+        localhost: `/scoreboard`,
     };
     response.render("scoreboard", variables);
 });
@@ -360,7 +352,6 @@ app.get("/history", (request, response) => {
 // getting play history
 app.post("/history", async (request, response) => {
     let {manager} = request.body;
-        
     // find all plays with manager
     await client.connect();
     const cursor = client.db(databaseAndCollection.db).collection(databaseAndCollection.collection)
@@ -430,5 +421,3 @@ server.listen(portNumber, () => {
         }
     });
 }); 
-
-

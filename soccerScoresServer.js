@@ -30,14 +30,11 @@ const firebaseConfig = {
 };
 const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
-let useruid;
-onAuthStateChanged(auth, function(user) {
-    if (user) {
-        useruid = user.uid;
-    } else {
-        useruid = null;
-    }
-});
+let useruid = null;
+// helper functions
+function setUid(uid) {
+    useruid = uid;
+}
 
 // checking number of arguments is valid
 let portNumber = 3000;
@@ -72,6 +69,7 @@ app.post("/register", async (request, response) => {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         const user = userCredential.user;
+        setUid(user.uid);
         response.render("home");
     })
     .catch((error) => {
@@ -109,6 +107,7 @@ app.post("/login", (request, response) => {
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         const user = userCredential.user;
+        setUid(user.uid);
         response.render("home");
     })
     .catch((error) => {
@@ -170,6 +169,7 @@ app.get("/logout", (request, response) => {
         const variables = {
             message: ""
         };
+        setUid(null);
         response.render("login", variables);
     })
     .catch((error) => {
@@ -430,3 +430,5 @@ server.listen(portNumber, () => {
         }
     });
 }); 
+
+

@@ -11,7 +11,7 @@
     <div class="authenticate">
         <h1>REGISTER</h1>
         <hr>
-        <form action="/register" method="POST" onsubmit="return verifyPassword()">
+        <form action=<%- localhost %> method="POST" onsubmit="return verifyPassword()">
             <div id="error-message">
                 <%- message %>
             </div>

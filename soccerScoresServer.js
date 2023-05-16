@@ -30,16 +30,13 @@ const firebaseConfig = {
 };
 const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
-let user;
-let useruid;
-let authorized = false;
+let user = null;
+let useruid = null;
 onAuthStateChanged(auth, ((user) => {
     if (user) {
         useruid = user.uid;
-        authorized = true;
     } else {
         useruid = null;
-        authorized = false;
     }
 }));
 
@@ -61,9 +58,14 @@ app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({extended:false}));
 
+// authentication side
 // getting the index page
 app.get("/", (request, response) => {
-    response.render("index", {message: ""});
+    const variables = {
+        localhost: `http://localhost:${portNumber}/register`,
+        message: ""
+    };
+    response.render("index", variables);
 });
 
 // adding user to the firebase
@@ -87,14 +89,22 @@ app.post("/register", (request, response) => {
                 errorMessage = error.message;
                 break;
         }
-        response.render("index", {message: errorMessage});
+        const variables = {
+            localhost: `http://localhost:${portNumber}/register`,
+            message: errorMessage
+        };
+        response.render("index", variables);
     });
     
 });
 
 // getting the login page
 app.get("/login", (request, response) => {
-    response.render("login", {message: ""});
+    const variables = {
+        localhost: `http://localhost:${portNumber}/login`,
+        message: ""
+    };
+    response.render("login", variables);
 });
 
 // logging in with user and checking if user exists
@@ -117,7 +127,11 @@ app.post("/login", (request, response) => {
                 errorMessage = error.message;
                 break;
         }
-        response.render("login", {message: errorMessage});
+        const variables = {
+            localhost: `http://localhost:${portNumber}/login`,
+            message: errorMessage
+        };
+        response.render("login", variables);
     });    
 });
 
@@ -125,17 +139,25 @@ app.post("/login", (request, response) => {
 app.get("/logout", (request, response) => {
     signOut(auth)
     .then(() => {
-        response.render("login", {message: ""});
+        const variables = {
+            localhost: `http://localhost:${portNumber}/login`,
+            message: ""
+        };
+        response.render("login", variables);
     })
     .catch((error) => {
         const errorMessage = error.message;
-        response.render("login", {message: errorMessage});
+        const variables = {
+            localhost: `http://localhost:${portNumber}/login`,
+            message: errorMessage
+        };
+        response.render("login", variables);
     });
 });
 
 // getting the home page
 app.get("/home", (request, response) => {
-    if (authorized) {
+    if (user) {
         response.render("home");
     } else {
         response.render("index", {message: "Please Create An Account"});
@@ -246,7 +268,7 @@ app.get("/ligueone", async (request, response) => {
 // UND1C! side
 // getting the newgame page
 app.get("/newgame", (request, response) => {
-    if (authorized) {
+    if (user) {
         const variables = {
             localhost: `http://localhost:${portNumber}/newgame`
         };
@@ -288,7 +310,7 @@ app.post("/scoreboard", async (request, response) => {
 
 // getting the history page
 app.get("/history", (request, response) => {
-    if (authorized) {
+    if (user) {
         const variables = {
             localhost: `http://localhost:${portNumber}/history`
         };
@@ -327,7 +349,7 @@ app.post("/history", async (request, response) => {
 
 // show all games played
 app.get("/all", async (request, response) => {
-    if (authorized) {
+    if (user) {
         // get all games
         await client.connect();
         const cursor = client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).find({useruid: useruid});

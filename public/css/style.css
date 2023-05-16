@@ -4,8 +4,60 @@ html {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* navbar */
+* {box-sizing: border-box;}
 
+/* authenticate page */
+.authenticate {
+    background-color: rgb(15, 15, 95);
+    padding: 10pt;  
+    border: 1pt solid white;
+}
+
+input[type=text], input[type=email], input[type=password] {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0 22px 0;
+    display: inline-block;
+    border: none;
+    background: #f1d2d2;
+}
+  
+input[type=email]:focus, input[type=password]:focus {
+    background-color: #ddd;
+    outline: none;
+}
+
+.submitbtn {
+    background-color: green;
+    color: white;
+    padding: 16px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    opacity: 0.9;
+}
+
+.registerbtn:hover {
+    opacity:1;
+  }
+
+.authenticate-options {
+    color: white;
+    text-align: center;
+}
+
+.authenticate-options a {
+    color: black;
+}
+
+#error-message {
+    padding: 10pt;
+    color: red;
+    font-size: 20pt;
+}
+
+/* navbar */
 .navbar {
     overflow: hidden;
     background-color: black;
@@ -78,6 +130,31 @@ html {
 /* body */
 .body {
     padding: 12px;
+}
+
+
+.body fieldset {
+    margin: 10pt;
+    padding:30px; 
+    border:2px solid red; 
+}
+
+.body fieldset legend {
+    background-color: red;
+    padding: 10pt;
+    font-size: 1.3rem;
+    color: white;
+}
+
+.fieldset-white {
+    background-color: white;
+    color: black;
+}
+
+
+.fieldset-black {
+    background-color: black;
+    color: white;
 }
 
 /* search results */
@@ -155,6 +232,37 @@ html {
     padding: 5pt;
 }
 
+.logbtn {
+  background-color: #222;
+  border-radius: 4px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0;
+  max-width: none;
+  min-height: 44px;
+  min-width: 10px;
+  outline: none;
+  overflow: hidden;
+  padding: 9px 20px 8px;
+  position: relative;
+  text-align: center;
+  text-transform: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.logbtn:hover,
+.logbtn:focus {
+    background-color: red;
+}
+
 /* table page */
 .title {
     font-size: 50pt;
@@ -168,4 +276,5 @@ html {
 
 .league-logo {
     max-height: 100pt;
+    cursor: pointer;
 }

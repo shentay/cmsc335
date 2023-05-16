@@ -19,25 +19,29 @@
             New Game - Setup
         </h1>
 		<form action=<%- localhost %> method="post">
-            <fieldset>
+            <fieldset class="fieldset-white">
                 <legend>
-                    <strong>Home Team</strong>
+                    <strong>Team White</strong>
                 </legend>
-                <label>Manager Name: <input type="text" name="home_manager" required></label> <br>
-			    <label>Team Name: <input type="text" name="home_team" required></label>
+                <label for="home_manager">Manager Name</label>
+                <input type="text" name="home_manager" required id="home_manager"><br>
+			    <label for="home_team">Team Name</label>
+                <input type="text" name="home_team" required id="home_team">
             </fieldset>
 
-            <fieldset>
+            <fieldset class="fieldset-black">
                 <legend>
-                    <strong>Away Team</strong>
+                    <strong>Team Black</strong>
                 </legend>
-                <label>Manager Name: <input type="text" name="away_manager" required></label> <br>
-			    <label>Team Name: <input type="text" name="away_team" required></label>
+                <label for="away_manager">Manager Name</label>
+                <input type="text" name="away_manager" required id="away_manager"><br>
+			    <label for="away_team">Team Name</label>
+                <input type="text" name="away_team" required id="away_team">
             </fieldset>
 
             <br>
-            <input type="reset" />
-            <input type="submit" value="Create Game"/>
+            <input type="reset" class="logbtn"/>
+            <input type="submit" value="Create Game" class="logbtn"/>
         </form>
 	</div>
 	

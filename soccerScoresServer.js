@@ -1,22 +1,41 @@
-'use strict'
+import path from 'path';
+import express from 'express';
+import bodyParser from 'body-parser';
+import http from 'http';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import {MongoClient, ServerApiVersion} from 'mongodb';
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
-const path = require("path");
-const bodyParser = require("body-parser");
-const express = require("express");
-const http = require('http');
-let portNumber = 3000;  
-require("dotenv").config({ path: path.resolve(__dirname, 'credentials/.env') }) 
-// mongodb
+// mongodb authorization
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, 'credentials/.env') });  
 const userName = process.env.MONGO_DB_USERNAME;
 const password = process.env.MONGO_DB_PASSWORD;
 const databaseAndCollection = {db: process.env.MONGO_DB_NAME, collection: process.env.MONGO_COLLECTION};
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${userName}:${password}@cluster0.tsbctmh.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-const app = express();
+// firebase authorization
+const firebaseConfig = {
+  apiKey: "AIzaSyC_aaj6TYHo0Np7n2EkrThwHeKeGNkPnYQ",
+  authDomain: "undici-a9895.firebaseapp.com",
+  projectId: "undici-a9895",
+  storageBucket: "undici-a9895.appspot.com",
+  messagingSenderId: "889383959635",
+  appId: "1:889383959635:web:8eaedfd62f59c83705daa6",
+  measurementId: "G-ZCQ8VCYBVD"
+};
+const firebase = initializeApp(firebaseConfig);
+const auth = getAuth(firebase);
+let user;
+let useruid;
+let authorized = false;
 
 // checking number of arguments is valid
+let portNumber = 3000;
 process.stdin.setEncoding("utf8");
 if (process.argv.length == 3) {
     portNumber = process.argv[2];
@@ -24,11 +43,10 @@ if (process.argv.length == 3) {
 } else if (process.argv.length > 3) {
     process.stdout.write(`Usage supermarketServer.js portNumber`);
     process.exit(1);
-} else {
-    portNumber = 3000;
 }
 
 // app configuration
+const app = express();
 app.set("views", path.resolve(__dirname, "templates"));
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, 'public')));
@@ -36,9 +54,93 @@ app.use(bodyParser.urlencoded({extended:false}));
 
 // getting the index page
 app.get("/", (request, response) => {
-    response.render("index");
+    response.render("index", {message: ""});
 });
 
+// adding user to the firebase
+app.post("/register", (request, response) => {
+    let {email, password} = request.body;
+    createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+        user = userCredential.user;
+        useruid = user.uid;
+        authorized = true;
+        response.render("home");
+    })
+    .catch((error) => {
+        let errorMessage;
+        switch (error.code) {
+            case 'auth/email-already-in-use':
+                errorMessage = `Email address provided is already in use!`;
+                break;
+            case 'auth/weak-password':
+                errorMessage = 'Password is not strong enough!';
+                break;
+            default:
+                errorMessage = error.message;
+                break;
+        }
+        response.render("index", {message: errorMessage});
+    });
+    
+});
+
+// getting the login page
+app.get("/login", (request, response) => {
+    response.render("login", {message: ""});
+});
+
+// logging in with user and checking if user exists
+app.post("/login", (request, response) => {
+    let {email, password} = request.body;
+    signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+        user = userCredential.user;
+        useruid = user.uid;
+        authorized = true;
+        response.render("home", {message: ""});
+    })
+    .catch((error) => {
+        let errorMessage;
+        switch (error.code) {
+            case 'auth/user-not-found':
+                errorMessage = `Invalid email address!`
+            case 'auth/wrong-password':
+                errorMessage = `Invalid password!`;
+                break;
+            default:
+                errorMessage = error.message;
+                break;
+        }
+        response.render("login", {message: errorMessage});
+    });    
+});
+
+// logging out the user
+app.get("/logout", (request, response) => {
+    signOut(auth)
+    .then(() => {
+        user = null;
+        useruid = null;
+        authorized = false;
+        response.render("login", {message: ""});
+    })
+    .catch((error) => {
+        const errorMessage = error.message;
+        response.render("login", {message: errorMessage});
+    });
+});
+
+// getting the home page
+app.get("/home", (request, response) => {
+    if (authorized) {
+        response.render("home");
+    } else {
+        response.render("index", {message: "Please Create An Account"});
+    }
+});
+
+// live table data side
 // api data
 let url;
 const options = {
@@ -139,12 +241,17 @@ app.get("/ligueone", async (request, response) => {
     response.render("ligueone", variables);
 });
 
+// UND1C! side
 // getting the newgame page
 app.get("/newgame", (request, response) => {
-    const variables = {
-        localhost: `http://localhost:${portNumber}/newgame`
-    };
-    response.render("newgame", variables);
+    if (authorized) {
+        const variables = {
+            localhost: `http://localhost:${portNumber}/newgame`
+        };
+        response.render("newgame", variables);
+    } else {
+        response.render("index", {message: "Please Create An Account"})
+    }
 });
 
 // starting the game
@@ -164,12 +271,13 @@ app.post("/newgame", (request, response) => {
 app.post("/scoreboard", async (request, response) => {
     let {home_team, home_manager, away_team, away_manager, final_score} = request.body;
     const game_results = {
+        useruid: useruid,
         home_team: home_team,
         away_team: away_team,
         home_manager: home_manager,
         away_manager: away_manager,
         final_score: final_score
-    }
+    };
     await client.connect();
     await client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).insertOne(game_results);
     await client.close();
@@ -178,10 +286,14 @@ app.post("/scoreboard", async (request, response) => {
 
 // getting the history page
 app.get("/history", (request, response) => {
-    const variables = {
-        localhost: `http://localhost:${portNumber}/history`
-    };
-    response.render("history", variables);
+    if (authorized) {
+        const variables = {
+            localhost: `http://localhost:${portNumber}/history`
+        };
+        response.render("history", variables);
+    } else {
+        response.render("index", {message: "Please Create An Account"});
+    }
 });
 
 // getting play history
@@ -191,7 +303,7 @@ app.post("/history", async (request, response) => {
     // find all plays with manager
     await client.connect();
     const cursor = client.db(databaseAndCollection.db).collection(databaseAndCollection.collection)
-    .find({$or: [{home_manager: manager}, {away_manager: manager}]});
+    .find({$and: [{useruid: useruid ,$or: [{home_manager: manager}, {away_manager: manager}]}]});
     const result = await cursor.toArray();
     await client.close();
     let resultTableHTML;   
@@ -213,23 +325,25 @@ app.post("/history", async (request, response) => {
 
 // show all games played
 app.get("/all", async (request, response) => {
-    // get all games
-    await client.connect();
-    const cursor = client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).find({});
-    const result = await cursor.toArray();
-    await client.close();
-    let resultTableHTML = "<table class='search-results'> <tr><th>Home Manager</th><th>Score</th><th>Away Manager</th></tr>";
-    result.forEach(element => {
-        resultTableHTML += `<tr><td>${element.home_manager}</td><td>${element.home_team} ${element.final_score} ${element.away_team}</td><td>${element.away_manager}</td></tr>`;
-    });
-    resultTableHTML += "</table>";
-    const variables = {
-        results: resultTableHTML
-    };
-    response.render("all", variables);
+    if (authorized) {
+        // get all games
+        await client.connect();
+        const cursor = client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).find({useruid: useruid});
+        const result = await cursor.toArray();
+        await client.close();
+        let resultTableHTML = "<table class='search-results'> <tr><th>Home Manager</th><th>Score</th><th>Away Manager</th></tr>";
+        result.forEach(element => {
+            resultTableHTML += `<tr><td>${element.home_manager}</td><td>${element.home_team} ${element.final_score} ${element.away_team}</td><td>${element.away_manager}</td></tr>`;
+        });
+        resultTableHTML += "</table>";
+        const variables = {
+            results: resultTableHTML
+        };
+        response.render("all", variables);
+    } else {
+        response.render("index", {message: "Please Create An Account"});
+    }
 });
-
-
 
 // command line interpreter
 const server = http.createServer(app);

@@ -62,7 +62,7 @@ app.use(bodyParser.urlencoded({extended:false}));
 // getting the index page
 app.get("/", (request, response) => {
     const variables = {
-        localhost: `http://localhost:${portNumber}/register`,
+        localhost: `/register`,
         message: ""
     };
     response.render("index", variables);
@@ -90,7 +90,7 @@ app.post("/register", (request, response) => {
                 break;
         }
         const variables = {
-            localhost: `http://localhost:${portNumber}/register`,
+            localhost: `/register`,
             message: errorMessage
         };
         response.render("index", variables);
@@ -101,7 +101,7 @@ app.post("/register", (request, response) => {
 // getting the login page
 app.get("/login", (request, response) => {
     const variables = {
-        localhost: `http://localhost:${portNumber}/login`,
+        localhost: `/login`,
         message: ""
     };
     response.render("login", variables);
@@ -113,7 +113,7 @@ app.post("/login", (request, response) => {
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
         user = userCredential.user;
-        response.render("home", {message: ""});
+        response.render("home");
     })
     .catch((error) => {
         let errorMessage;
@@ -128,7 +128,7 @@ app.post("/login", (request, response) => {
                 break;
         }
         const variables = {
-            localhost: `http://localhost:${portNumber}/login`,
+            localhost: `/login`,
             message: errorMessage
         };
         response.render("login", variables);
@@ -140,7 +140,7 @@ app.get("/logout", (request, response) => {
     signOut(auth)
     .then(() => {
         const variables = {
-            localhost: `http://localhost:${portNumber}/login`,
+            localhost: `/login`,
             message: ""
         };
         response.render("login", variables);
@@ -148,7 +148,7 @@ app.get("/logout", (request, response) => {
     .catch((error) => {
         const errorMessage = error.message;
         const variables = {
-            localhost: `http://localhost:${portNumber}/login`,
+            localhost: `/login`,
             message: errorMessage
         };
         response.render("login", variables);
@@ -270,7 +270,7 @@ app.get("/ligueone", async (request, response) => {
 app.get("/newgame", (request, response) => {
     if (user) {
         const variables = {
-            localhost: `http://localhost:${portNumber}/newgame`
+            localhost: `/newgame`
         };
         response.render("newgame", variables);
     } else {
@@ -286,7 +286,7 @@ app.post("/newgame", (request, response) => {
         home_team: home_team,
         away_manager: away_manager,
         away_team: away_team,
-        localhost: `http://localhost:${portNumber}/scoreboard`
+        localhost: `/scoreboard`
     };
     response.render("scoreboard", variables);
 });
@@ -312,7 +312,7 @@ app.post("/scoreboard", async (request, response) => {
 app.get("/history", (request, response) => {
     if (user) {
         const variables = {
-            localhost: `http://localhost:${portNumber}/history`
+            localhost: `/history`
         };
         response.render("history", variables);
     } else {
